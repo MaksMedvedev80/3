@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Reviews</title>
+</head>
+<body>
+    <h1>View Reviews</h1>
+    <div id="reviews"></div>
+
+    <script>
+        let reviews = JSON.parse(localStorage.getItem("reviews")) || [];
+
+        function showReviews(productName) {
+            let productReviews = reviews.filter(function(review) {
+                return review.productName === productName;
+            });
+
+            let reviewList = document.createElement("ul");
+            productReviews.forEach(function(review) {
+                let listItem = document.createElement("li");
+                listItem.textContent = review.reviewText;
+                
+                let deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+                deleteButton.addEventListener("click", function() {
+                    let index = reviews.findIndex(function(r) {
+                        return r.productName === productName && r.reviewText === review.reviewText;
+                    });
+                    if (index !== -1) {
+                        reviews.splice(index, 1);
+                        localStorage.setItem("reviews", JSON.stringify(reviews));
+                        listItem.remove();
+
+                        if (productReviews.length === 1) {
+                            let productIndex = reviews.findIndex(function(r) {
+                                return r.productName === productName;
+                            });
+                            if (productIndex !== -1) {
+                                reviews.splice(productIndex, 1);
+                                localStorage.setItem("reviews", JSON.stringify(reviews));
+                                document.getElementById(productName).remove();
+                            }
+                        }
+                    }
+                });
+
+                listItem.appendChild(deleteButton);
+                reviewList.appendChild(listItem);
+            });
+
+            return reviewList;
+        }
+
+        reviews.forEach(function(review) {
+            let productName = review.productName;
+            if (!document.getElementById(productName)) {
+                let productHeader = document.createElement("h3");
+                productHeader.textContent = productName;
+
+                let showHideButton = document.createElement("button");
+                showHideButton.textContent = "Show Reviews";
+                showHideButton.addEventListener("click", function() {
+                    let reviewsDiv = document.getElementById(productName + "-reviews");
+                    if (reviewsDiv.childElementCount === 0) {
+                        reviewsDiv.appendChild(showReviews(productName));
+                        showHideButton.textContent = "Hide Reviews";
+                    } else {
+                        reviewsDiv.innerHTML = "";
+                        showHideButton.textContent = "Show Reviews";
+                    }
+                });
+
+                let productDiv = document.createElement("div");
+                productDiv.id = productName;
+
+                let reviewsDiv = document.createElement("div");
+                reviewsDiv.id = productName + "-reviews";
+
+                productDiv.appendChild(productHeader);
+                productDiv.appendChild(showHideButton);
+                productDiv.appendChild(reviewsDiv);
+
+                let deleteProductButton = document.createElement("button");
+                deleteProductButton.textContent = "Delete Product";
+                deleteProductButton.addEventListener("click", function() {
+                    reviews = reviews.filter(function(review) {
+                        return review.productName !== productName;
+                    });
+                    localStorage.setItem("reviews", JSON.stringify(reviews));
+                    productDiv.remove();
+                });
+
+                productDiv.appendChild(deleteProductButton);
+
+                document.getElementById("reviews").appendChild(productDiv);
+            }
+        });
+    </script>
+</body>
+</html>

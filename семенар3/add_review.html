@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Review</title>
+</head>
+<body>
+    <h1>Add Review</h1>
+    <form id="reviewForm">
+        <label for="productName">Product Name:</label><br>
+        <input type="text" id="productName" name="productName"><br>
+        <label for="reviewText">Review:</label><br>
+        <textarea id="reviewText" name="reviewText"></textarea><br>
+        <button type="submit">Add Review</button>
+    </form>
+
+    <p id="error" style="color: red; display: none;">Both fields are required.</p>
+
+    <script>
+        document.getElementById("reviewForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            let productName = document.getElementById("productName").value;
+            let reviewText = document.getElementById("reviewText").value;
+
+            if (productName.trim() === "" || reviewText.trim() === "") {
+                document.getElementById("error").style.display = "block";
+                return;
+            }
+
+            let review = {
+                productName: productName,
+                reviewText: reviewText
+            };
+
+            // Save review to local storage
+            let reviews = JSON.parse(localStorage.getItem("reviews")) || [];
+            reviews.push(review);
+            localStorage.setItem("reviews", JSON.stringify(reviews));
+
+            // Reset form
+            document.getElementById("productName").value = "";
+            document.getElementById("reviewText").value = "";
+
+            alert("Review added successfully!");
+            document.getElementById("error").style.display = "none";
+        });
+    </script>
+</body>
+</html>
